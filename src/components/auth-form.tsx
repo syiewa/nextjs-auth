@@ -3,15 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { signup } from "@/actions/auth-action";
+import { auth } from "@/actions/auth-action";
 import { useActionState } from "react";
 
 import { FormState } from "@/lib/user";
 
-export default function AuthForm() {
+export default function AuthForm({mode}: {mode: string}) {
   const initialState: FormState = {};
   const [formState, formAction] = useActionState<FormState, FormData>(
-    signup,
+    async (state, formData) => {
+      const result = await auth(mode, state, formData);
+      return result || {};
+    },
     initialState
   );
   return (
@@ -45,11 +48,16 @@ export default function AuthForm() {
       )}
       <p>
         <button type="submit" className="mt-4">
-          Create Account
+          {mode === "login" ? "Login" : "Create Account"}
         </button>
       </p>
       <p>
-        <Link href="/">Login with existing account.</Link>
+        {mode === "login" && (
+          <Link href="/?mode=signup">Create an account</Link>
+        )}
+        {mode === "signup" && (
+          <Link href="/?mode=login">Login with existing account</Link>
+        )}
       </p>
     </form>
   );
