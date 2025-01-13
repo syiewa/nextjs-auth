@@ -7,6 +7,7 @@ export interface Trainings {
   description: string;
 }
 
+
 export async function getTrainings() {
   const stmt = db.prepare('SELECT * FROM trainings');
   const result = stmt.all();
