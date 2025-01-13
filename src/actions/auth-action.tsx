@@ -3,6 +3,7 @@
 import { createUser, FormState } from "@/lib/user";
 import { hashUserPassword } from "@/lib/hash";
 import { redirect } from "next/navigation";
+import { createAuthSession } from "@/lib/auth";
 
 export async function signup(
   prevState: FormState,
@@ -27,7 +28,8 @@ export async function signup(
   }
   const hashedPassword = hashUserPassword(password);
   try {
-    createUser(email, hashedPassword);
+    const userId = await createUser(email, hashedPassword);
+    await createAuthSession(userId.toString());
   } catch (error) {
     console.log(error);
     if (
@@ -40,6 +42,5 @@ export async function signup(
     }
     // throw error;
   }
-
   redirect('/training');
 }
