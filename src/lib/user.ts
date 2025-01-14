@@ -1,4 +1,6 @@
-import db from "./db";
+import { createClient } from "@/utils/supabase/client";
+
+const supabase = createClient();
 
 export interface FormState {
   errors?: { [key: string]: string };
@@ -11,16 +13,28 @@ export interface User {
   password: string;
 }
 
-export function createUser(email: string, password: string) {
+export async function createUser(email: string, password: string) {
   // Your user creation logic here
-  const result = db
-    .prepare("INSERT INTO users (email, password) VALUES (?, ?)")
-    .run(email, password);
-  return result.lastInsertRowid;
+  const { data, error } = await supabase.from('users').insert({
+    email,
+    password,
+  }).select();
+  if (error) {
+    throw error;
+  }
+  return data[0].id;
+  // const result = db
+  //   .prepare("INSERT INTO users (email, password) VALUES (?, ?)")
+  //   .run(email, password);
+//   return result.lastInsertRowid;
 }
 
-export function getUserByEmail(email: string) {
+export async function getUserByEmail(email: string) {
   // Your user retrieval logic here
-  const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
-  return user as User;
+  const {data, error} = await supabase.from('users').select().eq('email', email);
+  
+  if(error) {
+    throw error;
+  }
+  return data[0] as User;
 }

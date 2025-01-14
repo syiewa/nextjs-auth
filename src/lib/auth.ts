@@ -69,6 +69,23 @@ export async function verifyAuth() {
         sessionCookie.attributes
       );
     }
-  } catch {}
+  } catch { }
   return result;
+}
+
+export async function destroyAuthSession() {
+  const { session } = await verifyAuth();
+  if (!session) {
+    return {
+      error: "No session found"
+    }
+  }
+
+  await lucia.invalidateSession(session.id);
+  const sessionCookie = lucia.createBlankSessionCookie();
+  (await cookies()).set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
 }
